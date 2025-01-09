@@ -7,4 +7,6 @@
 	<string name="start">Scan</string>
 	<string name="scanner_hint">Press the Scan button to acquire a barcode.</string>
 	<string name="title_activity_settings">Symbologies</string>
+	<string name="start_recording">Start recording</string>
+	<string name="stop_recording">Start recording</string>
 </resources>
