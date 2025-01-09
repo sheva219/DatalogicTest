@@ -47,6 +47,7 @@ dependencies {
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
     implementation libs.datalogic.android.sdk
+    implementation libs.androidx.constraintlayout
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
@@ -55,4 +56,12 @@ dependencies {
     androidTestImplementation libs.androidx.ui.test.junit4
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
+
+    var cameraxVersion = "1.2.2"
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-video:$cameraxVersion")
+    implementation("androidx.camera:camera-view:$cameraxVersion")
+    implementation("androidx.camera:camera-extensions:$cameraxVersion")
 }

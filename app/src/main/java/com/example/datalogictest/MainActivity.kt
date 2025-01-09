@@ -1,5 +1,6 @@
 package com.example.datalogictest
 
+import android.Manifest
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -25,12 +26,21 @@ import com.datalogic.decode.TimeoutListener
 import com.datalogic.decode.configuration.DisplayNotification
 import com.datalogic.device.ErrorManager
 
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.core.content.ContextCompat
+
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+
 class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutListener, StopListener  {
-	// It will display the result
+
 	private var showScanResult: EditText? = null
-	// Current scan engine status
 	private var status: TextView? = null
-	// The scan button
 	private var mScan: Button? = null
 	private var statusTextColor: Int = 0
 
@@ -41,18 +51,41 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 
 	private lateinit var mBarcodeText : TextView
 
+	private lateinit var cameraExecutor: ExecutorService
+
+	private val activityResultLauncher =
+		registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+			var permissionGranted = true
+			permissions.entries.forEach {
+				if (!it.value) {
+					permissionGranted = false
+				}
+			}
+			if (!permissionGranted) {
+				Toast.makeText(baseContext, "Permission request denied", Toast.LENGTH_SHORT).show()
+			} else {
+				startCamera()
+			}
+		}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		val window = window
 		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 		setContentView(R.layout.activity_main)
 
-		// Enable exceptions
 		ErrorManager.enableExceptions(true)
+
+		if (allPermissionsGranted()) {
+			startCamera()
+		} else {
+			requestPermissions()
+		}
+
+		cameraExecutor = Executors.newSingleThreadExecutor()
 
 		setupView()
 
-		// Prevent soft keyboard from popping up while selecting/viewing scan result text.
 		mBarcodeText = findViewById<TextView>(R.id.scan_result)
 		mBarcodeText.showSoftInputOnFocus = false
 	}
@@ -90,7 +123,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 		}
 	}
 
-	// Connects to the barcode manager
 	private fun initScan() {
 		try {
 			mBarcodeManager = BarcodeManager()
@@ -101,7 +133,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 			return
 		}
 
-		// Disable Display Notification
 		val dn = DisplayNotification(mBarcodeManager)
 		if (dn.enable != null) {
 			previousNotification = dn.enable.get()
@@ -115,7 +146,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 		registerListeners()
 	}
 
-	// Register this activity as a listener for several scanner events
 	private fun registerListeners() {
 		try {
 			mBarcodeManager!!.addReadListener(this)
@@ -130,7 +160,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 
 	}
 
-	// Unregister this activity as a listener
 	private fun releaseListeners() {
 		try {
 			mBarcodeManager!!.removeReadListener(this)
@@ -148,26 +177,26 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 	override fun onPause() {
 		super.onPause()
 
-		// Release barcode manager
 		try {
 			if (mBarcodeManager != null) {
 				mBarcodeManager!!.stopDecode()
 
 				releaseListeners()
 
-				// restore previous setting
 				val dn = DisplayNotification(mBarcodeManager)
-				dn.enable.set(previousNotification)
-				dn.store(mBarcodeManager, false)
+				dn.enable?.let { enableProperty ->
+					enableProperty.set(previousNotification)
+					dn.store(mBarcodeManager, false)
+				}
 
 				mBarcodeManager = null
+			} else {
+				Log.w(TAG, "mBarcodeManager is null in onPause.")
 			}
 		} catch (e: Exception) {
 			Log.e(TAG, "Cannot detach from Scanner correctly", e)
 			showMessage("ERROR! Check logcat")
-			finish()
 		}
-
 	}
 
 	override fun onResume() {
@@ -197,7 +226,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 		}
 		ignoreStop = true
 
-		// Convert to IntArray
 		val bData = result.rawData
 		var iData = IntArray(0)
 		for(x in bData){
@@ -208,7 +236,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 		val text = result.text
 		val symb = result.barcodeID.toString()
 
-		// All data as log
 		Log.d(TAG, "Scan read")
 		Log.d(TAG, "Symb: $symb")
 		Log.d(TAG, "Data: $text")
@@ -263,7 +290,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 		}
 	}
 
-	// Changed typeof data from ByteArray
 	private fun encodeHex(data: IntArray?): String {
 		if (data == null)
 			return ""
@@ -294,5 +320,51 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 	companion object {
 
 		internal const val TAG = "Test-Scanner"
+
+		private val REQUIRED_PERMISSIONS = arrayOf(
+			Manifest.permission.CAMERA
+		)
+
 	}
+
+	private fun startCamera() {
+		val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+
+		cameraProviderFuture.addListener({
+			val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+
+			val previewView = findViewById<PreviewView>(R.id.viewFinder)
+
+			val preview = Preview.Builder().build().also {
+				it.setSurfaceProvider(previewView.surfaceProvider)
+			}
+
+			val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+			try {
+				cameraProvider.unbindAll()
+
+				cameraProvider.bindToLifecycle(
+					this, cameraSelector, preview
+				)
+			} catch (exc: Exception) {
+				Log.e(TAG, "Use case binding failed", exc)
+			}
+		}, ContextCompat.getMainExecutor(this))
+	}
+
+
+	private fun requestPermissions() {
+		activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+	}
+
+	private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+		ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
+	}
+
+	override fun onDestroy() {
+		super.onDestroy()
+		cameraExecutor.shutdown()
+	}
+
 }

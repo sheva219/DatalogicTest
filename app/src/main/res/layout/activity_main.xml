@@ -30,10 +30,17 @@
         android:textColor="#000000"
         />
 
-    <View
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_height="300dp">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/viewFinder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
         android:id="@+id/scanBtn"

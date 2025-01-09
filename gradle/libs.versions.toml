@@ -10,6 +10,7 @@ activityCompose = "1.9.3"
 composeBom = "2024.04.01"
 dataLogic = "1.34"
 dataLogicSelfShopping = "v1.8b"
+constraintlayout = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -28,6 +29,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 datalogic-android-sdk = { group = "com.github.datalogic", name = "datalogic-android-sdk", version.ref="dataLogic" }
 datalogic-android-sdk-selfshopping = { group = "com.github.datalogic", name = "datalogic-android-sdk-selfshopping", version.ref="dataLogicSelfShopping" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 
 [plugins]
