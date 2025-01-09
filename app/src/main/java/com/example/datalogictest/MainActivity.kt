@@ -2,7 +2,7 @@ package com.example.datalogictest;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,14 +21,14 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FileOutputOptions;
-import androidx.camera.video.Quality
-import androidx.camera.video.QualitySelector
+import androidx.camera.video.Quality;
+import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
-import androidx.camera.video.Recording
+import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.PreviewView;
-import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.datalogic.decode.BarcodeManager;
 import com.datalogic.decode.DecodeException;
@@ -43,7 +43,7 @@ import com.datalogic.device.ErrorManager;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-import java.util.UUID
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -86,6 +86,8 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 
 		ErrorManager.enableExceptions(true)
 
+		setupView()
+
 		if (allPermissionsGranted()) {
 			startCamera()
 		} else {
@@ -93,8 +95,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 		}
 
 		cameraExecutor = Executors.newSingleThreadExecutor()
-
-		setupView()
 
 		mBarcodeText = findViewById<TextView>(R.id.scan_result)
 		mBarcodeText.showSoftInputOnFocus = false
@@ -115,7 +115,7 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 					mBarcodeManager!!.startDecode()
 				} catch (e: Exception) {
 					Log.e(TAG, "Action DOWN", e)
-					showMessage("ERROR! Check logcat")
+					showMessage("ERROR! Check logcat1")
 				}
 
 			} else if (event.action == MotionEvent.ACTION_UP) {
@@ -124,7 +124,7 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 					mScan!!.isPressed = false
 				} catch (e: Exception) {
 					Log.e(TAG, "Action UP", e)
-					showMessage("ERROR! Check logcat")
+					showMessage("ERROR! Check logcat2")
 				}
 
 				v.performClick()
@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 			mBarcodeManager = BarcodeManager()
 		} catch (e: Exception) {
 			Log.e(TAG, "Error while creating BarcodeManager")
-			showMessage("ERROR! Check logcat")
+			showMessage("ERROR! Check logcat3")
 			finish()
 			return
 		}
@@ -173,7 +173,7 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 			mBarcodeManager!!.addTimeoutListener(this)
 		} catch (e: Exception) {
 			Log.e(TAG, "Cannot add listener, the app won't work")
-			showMessage("ERROR! Check logcat")
+			showMessage("ERROR! Check logcat4")
 			finish()
 		}
 	}
@@ -186,7 +186,7 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 			mBarcodeManager!!.removeTimeoutListener(this)
 		} catch (e: DecodeException) {
 			Log.e(TAG, "Cannot remove listeners, the app won't work", e)
-			showMessage("ERROR! Check logcat")
+			showMessage("ERROR! Check logcat5")
 			finish()
 		}
 	}
@@ -212,7 +212,7 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 			}
 		} catch (e: Exception) {
 			Log.e(TAG, "Cannot detach from Scanner correctly", e)
-			showMessage("ERROR! Check logcat")
+			showMessage("ERROR! Check logcat6")
 		}
 	}
 
@@ -378,14 +378,14 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 
 		val outputOptions = FileOutputOptions.Builder(file).build()
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-        activeRecording = videoCapture.output
+		if (ActivityCompat.checkSelfPermission(
+				this,
+				Manifest.permission.RECORD_AUDIO
+			) != PackageManager.PERMISSION_GRANTED
+		) {
+			return
+		}
+		activeRecording = videoCapture.output
 			.prepareRecording(this, outputOptions)
 			.withAudioEnabled()
 			.start(ContextCompat.getMainExecutor(this)) { recordEvent ->
@@ -408,7 +408,7 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 					}
 				}
 			}
-		}
+	}
 
 	private fun stopRecording() {
 		activeRecording?.stop()
