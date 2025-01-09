@@ -15,7 +15,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-
 import com.datalogic.decode.BarcodeManager
 import com.datalogic.decode.DecodeException
 import com.datalogic.decode.DecodeResult
@@ -25,7 +24,6 @@ import com.datalogic.decode.StopListener
 import com.datalogic.decode.TimeoutListener
 import com.datalogic.decode.configuration.DisplayNotification
 import com.datalogic.device.ErrorManager
-
 import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -33,7 +31,6 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -352,7 +349,6 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 			}
 		}, ContextCompat.getMainExecutor(this))
 	}
-
 
 	private fun requestPermissions() {
 		activityResultLauncher.launch(REQUIRED_PERMISSIONS)
