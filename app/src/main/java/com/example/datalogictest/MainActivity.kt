@@ -43,6 +43,7 @@ import com.datalogic.device.ErrorManager;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.UUID
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -370,8 +371,9 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 			showMessage("Failed to create output directory.")
 			return
 		}
-
-		val fileName = "VID_" + SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(System.currentTimeMillis()) + ".mp4"
+		val uuid = UUID.randomUUID().toString()
+		val cameraName = "BackCamera"
+		val fileName = "Joya_" + SimpleDateFormat("yyyy-MM-dd_HH_mm_ss", Locale.US).format(System.currentTimeMillis()) + "${uuid}_${cameraName}.avi"
 		val file = File(outputDir, fileName)
 
 		val outputOptions = FileOutputOptions.Builder(file).build()
