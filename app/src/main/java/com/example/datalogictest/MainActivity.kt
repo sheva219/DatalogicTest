@@ -108,26 +108,34 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 
 		mScan = findViewById<Button>(R.id.scanBtn)
 		mScan!!.setOnTouchListener { v, event ->
-			if (event.action == MotionEvent.ACTION_DOWN) {
-				try {
-					Log.e(TAG, "** Click Scan button")
-					mScan!!.isPressed = true
-					mBarcodeManager!!.startDecode()
-				} catch (e: Exception) {
-					Log.e(TAG, "Action DOWN", e)
-					showMessage("ERROR! Check logcat1")
-				}
+			if (mBarcodeManager == null) {
+				Log.e(TAG, "BarcodeManager is not initialized")
+				showMessage("Scanner not ready. Please try again.")
+				return@setOnTouchListener true
+			}
 
-			} else if (event.action == MotionEvent.ACTION_UP) {
-				try {
-					mBarcodeManager!!.stopDecode()
-					mScan!!.isPressed = false
-				} catch (e: Exception) {
-					Log.e(TAG, "Action UP", e)
-					showMessage("ERROR! Check logcat2")
+			when (event.action) {
+				MotionEvent.ACTION_DOWN -> {
+					try {
+						Log.d(TAG, "** Scan button pressed")
+						mScan!!.isPressed = true
+						mBarcodeManager!!.startDecode()
+					} catch (e: Exception) {
+						Log.e(TAG, "Error starting barcode scanner", e)
+						showMessage("ERROR! Unable to start scanner. Check logcat1.")
+					}
 				}
-
-				v.performClick()
+				MotionEvent.ACTION_UP -> {
+					try {
+						mBarcodeManager!!.stopDecode()
+						mScan!!.isPressed = false
+						Log.d(TAG, "** Scan button released")
+					} catch (e: Exception) {
+						Log.e(TAG, "Error stopping barcode scanner", e)
+						showMessage("ERROR! Unable to stop scanner. Check logcat2.")
+					}
+					v.performClick()
+				}
 			}
 			true
 		}
@@ -142,12 +150,14 @@ class MainActivity : ComponentActivity(), ReadListener, StartListener, TimeoutLi
 		}
 	}
 
+
 	private fun initScan() {
 		try {
 			mBarcodeManager = BarcodeManager()
+			Log.d(TAG, "BarcodeManager initialized successfully")
 		} catch (e: Exception) {
-			Log.e(TAG, "Error while creating BarcodeManager")
-			showMessage("ERROR! Check logcat3")
+			Log.e(TAG, "Error while creating BarcodeManager", e)
+			showMessage("ERROR! BarcodeManager initialization failed. Check logcat.")
 			finish()
 			return
 		}
